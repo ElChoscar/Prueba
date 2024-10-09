@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encriptar y Desencriptar Cookies</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script>
+        // Función para crear una cookie encriptada
+        function setEncryptedCookie(name, value, days) {
+            const key = "mi_clave_secreta"; // Clave secreta para encriptar
+            const encryptedValue = CryptoJS.AES.encrypt(value, key).toString();
+    
+            let expires = "";
+            if (days) {
+                const date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + encryptedValue + expires + "; path=/";
+        }
+    
+        // Función para obtener y desencriptar una cookie
+        function getDecryptedCookie(name) {
+            const key = "mi_clave_secreta"; // Clave secreta para desencriptar
+            const nameEQ = name + "=";
+            const cookies = document.cookie.split(';');
+            
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i];
+                while (cookie.charAt(0) == ' ') cookie = cookie.substring(1, cookie.length);
+                if (cookie.indexOf(nameEQ) == 0) {
+                    const encryptedValue = cookie.substring(nameEQ.length, cookie.length);
+                    const bytes = CryptoJS.AES.decrypt(encryptedValue, key);
+                    const decryptedValue = bytes.toString(CryptoJS.enc.Utf8);
+                    return decryptedValue;
+                }
+            }
+            return null;
+        }
+
+        // Ejemplo de uso
+        document.addEventListener('DOMContentLoaded', (event) => {
+            // Crear una cookie encriptada
+            setEncryptedCookie('usuario', 'LincolnElectric2024', 7); // Cookie válida por 7 días
+            
+            // Obtener y mostrar la cookie desencriptada
+            console.log('Cookie desencriptada:', getDecryptedCookie('usuario')); // Debería imprimir: LincolnElectric2024
+        });
+    </script>
+</head>
+<body>
+    <h1>Encriptación y Desencriptación de Cookies</h1>
+    <p>Abre la consola del navegador para ver los resultados.</p>
+</body>
+</html>
